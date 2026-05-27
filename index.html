@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>Comercial · Clínica</title>
+<style>
+  :root {
+    --bg: #f7f7f5;
+    --surface: #ffffff;
+    --surface-2: #f1efe8;
+    --border: #e5e3dc;
+    --border-strong: #c8c5ba;
+    --text: #1a1a19;
+    --text-2: #4d4c47;
+    --text-3: #767368;
+    --info-bg: #e6f1fb;
+    --info-fg: #0c447c;
+    --info-border: #378add;
+    --success-bg: #d6ecc1;
+    --success-fg: #1d4a06;
+    --success-border: #4a8517;
+    --success-strong: #2d6a0e;
+    --warning-bg: #fde8c4;
+    --warning-fg: #5a3206;
+    --warning-border: #b56d10;
+    --warning-strong: #8a4f0b;
+    --danger-bg: #fcd9d9;
+    --danger-fg: #6b1a1a;
+    --danger-border: #b32626;
+    --danger-strong: #8a1d1d;
+    --neutral-bg: #ebebe6;
+    --neutral-fg: #4a4945;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a19;
+      --surface: #242422;
+      --surface-2: #2c2c2a;
+      --border: #3a3a37;
+      --border-strong: #5a5a55;
+      --text: #f0efe8;
+      --text-2: #c4c2b9;
+      --text-3: #9a9890;
+      --neutral-bg: #2c2c2a;
+      --neutral-fg: #c4c2b9;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.5; }
+  .container { max-width: 760px; margin: 0 auto; padding: 1rem; }
+  header { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  header h1 { margin: 0; font-size: 18px; font-weight: 600; }
+  header .user-info { font-size: 12px; color: var(--text-2); text-align: right; }
+  header .user-info a { color: var(--text-2); text-decoration: underline; cursor: pointer; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 1.25rem; overflow-x: auto; }
+  .tab-btn { background: transparent; border: 1px solid var(--border); padding: 8px 14px; border-radius: var(--radius); font-size: 14px; cursor: pointer; color: var(--text-2); white-space: nowrap; font-family: inherit; position: relative; }
+  .tab-btn.active { background: var(--surface-2); color: var(--text); border-color: var(--border-strong); }
+  .tab-counter { display: inline-block; margin-left: 6px; background: var(--danger-bg); color: var(--danger-fg); font-size: 11px; padding: 1px 6px; border-radius: 10px; font-weight: 600; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; }
+  .field { margin-bottom: 1rem; }
+  .field-label { font-size: 12px; color: var(--text-2); margin-bottom: 6px; display: block; font-weight: 500; }
+  input[type="text"], input[type="email"], input[type="password"], input[type="date"], textarea {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius);
+    font-size: 15px; background: var(--bg); color: var(--text); font-family: inherit;
+  }
+  input:focus, textarea:focus { outline: none; border-color: var(--info-border); box-shadow: 0 0 0 3px var(--info-bg); }
+  textarea { min-height: 60px; resize: vertical; }
+  .opt-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .opt-btn { background: transparent; border: 1px solid var(--border); padding: 8px 12px; border-radius: var(--radius); font-size: 13px; cursor: pointer; color: var(--text-2); flex: 1; min-width: 90px; font-family: inherit; }
+  .opt-btn:hover { border-color: var(--border-strong); }
+  .opt-btn.selected { background: var(--info-bg); border-color: var(--info-border); color: var(--info-fg); font-weight: 500; }
+  .opt-btn.selected.success { background: var(--success-bg); border-color: var(--success-border); color: var(--success-fg); }
+  .opt-btn.selected.danger { background: var(--danger-bg); border-color: var(--danger-border); color: var(--danger-fg); }
+  .opt-btn.selected.warning { background: var(--warning-bg); border-color: var(--warning-border); color: var(--warning-fg); }
+  /* Grid de motivos no modal: 3 colunas fixas, altura padronizada */
+  .motivos-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .motivos-grid .opt-btn {
+    flex: none;
+    min-width: 0;
+    width: 100%;
+    padding: 14px 8px;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.25;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .motivos-grid .opt-btn.selected { font-weight: 700; border-width: 2px; }
+  @media (max-width: 480px) {
+    .motivos-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  /* Grid dos atalhos D+2/D+5/D+10: mesma estética para coerência visual */
+  .followup-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .followup-grid .opt-btn {
+    flex: none;
+    min-width: 0;
+    width: 100%;
+    padding: 12px 8px;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.3;
+  }
+  .followup-grid .opt-btn.selected { font-weight: 700; border-width: 2px; }
+  .big-action-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1rem; }
+  .big-action-btn { padding: 18px 14px; border-radius: var(--radius-lg); border: 2px solid; font-size: 16px; font-weight: 600; cursor: pointer; font-family: inherit; transition: transform 0.05s; }
+  .big-action-btn:hover { transform: translateY(-1px); }
+  .big-action-btn:active { transform: translateY(0); }
+  .big-action-btn.ganhou { background: var(--success-bg); border-color: var(--success-strong); color: var(--success-fg); }
+  .big-action-btn.empatou { background: var(--warning-bg); border-color: var(--warning-strong); color: var(--warning-fg); }
+  .big-action-btn.perdeu { background: var(--danger-bg); border-color: var(--danger-strong); color: var(--danger-fg); }
+  .big-action-btn.selected.ganhou { background: var(--success-strong); color: white; }
+  .big-action-btn.selected.empatou { background: var(--warning-strong); color: white; }
+  .big-action-btn.selected.perdeu { background: var(--danger-strong); color: white; }
+  details { margin-bottom: 1rem; }
+  details summary { font-size: 13px; color: var(--text-2); cursor: pointer; padding: 6px 0; user-select: none; }
+  details[open] summary { margin-bottom: 12px; }
+  .btn-primary { width: 100%; padding: 12px; background: var(--text); color: var(--bg); border: none; border-radius: var(--radius); font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 8px; font-family: inherit; }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-secondary { background: transparent; border: 1px solid var(--border); padding: 6px 12px; border-radius: var(--radius); font-size: 13px; cursor: pointer; color: var(--text-2); font-family: inherit; }
+  .btn-secondary:hover { background: var(--surface-2); }
+  .msg { margin-top: 8px; font-size: 13px; padding: 8px 10px; border-radius: var(--radius); display: none; }
+  .msg.error { background: var(--danger-bg); color: var(--danger-fg); }
+  .msg.success { background: var(--success-bg); color: var(--success-fg); }
+  /* AJUSTE VISUAL: stat-cards centralizadas + labels maiores */
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 1.25rem; }
+  .stat-card { background: var(--surface-2); border-radius: var(--radius); padding: 18px 16px; border: 1px solid transparent; text-align: center; }
+  .stat-card.success { background: var(--success-bg); border-color: var(--success-border); }
+  .stat-card.warning { background: var(--warning-bg); border-color: var(--warning-border); }
+  .stat-card.danger { background: var(--danger-bg); border-color: var(--danger-border); }
+  .stat-card.info { background: var(--info-bg); border-color: var(--info-border); }
+  .stat-card.success .stat-value { color: var(--success-fg); }
+  .stat-card.warning .stat-value { color: var(--warning-fg); }
+  .stat-card.danger .stat-value { color: var(--danger-fg); }
+  .stat-card.info .stat-value { color: var(--info-fg); }
+  .stat-card.success .stat-label, .stat-card.warning .stat-label, .stat-card.danger .stat-label, .stat-card.info .stat-label { color: inherit; opacity: 0.85; }
+  .stat-label { font-size: 14px; color: var(--text-2); margin: 0 0 6px; font-weight: 600; line-height: 1.3; }
+  .stat-value { font-size: 30px; font-weight: 700; margin: 0; color: var(--text); }
+  .stat-sub { font-size: 11px; color: var(--text-2); margin: 4px 0 0; }
+  .row-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 8px; cursor: pointer; transition: border-color 0.1s; border-left-width: 4px; }
+  .row-card:hover { border-color: var(--border-strong); }
+  .row-card.urgent { border-left-color: var(--danger-strong); background: linear-gradient(to right, var(--danger-bg) 0%, var(--surface) 30%); }
+  .row-card.today { border-left-color: var(--warning-strong); background: linear-gradient(to right, var(--warning-bg) 0%, var(--surface) 30%); }
+  .row-card.future { border-left-color: var(--neutral-fg); }
+  .row-card.success { border-left-color: var(--success-strong); }
+  .row-card.danger { border-left-color: var(--danger-strong); }
+  .row-card.info { border-left-color: var(--info-border); }
+  .row-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .row-info { min-width: 0; flex: 1; }
+  .row-name { margin: 0; font-size: 15px; font-weight: 600; color: var(--text); }
+  .row-meta { font-size: 12px; color: var(--text-2); margin: 2px 0 0; }
+  .badge { font-size: 11px; padding: 3px 8px; border-radius: var(--radius); font-weight: 600; white-space: nowrap; }
+  .info-box { background: var(--surface-2); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 1rem; font-size: 13px; color: var(--text-2); }
+  .empty { font-size: 13px; color: var(--text-3); padding: 1.5rem 0; text-align: center; }
+  .periodo-tabs { display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap; }
+  .periodo-tabs .tab-btn { font-size: 13px; padding: 6px 12px; }
+  .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 8px; }
+  .day-header p { margin: 0; font-size: 14px; color: var(--text-2); }
+  .section-title { font-size: 14px; font-weight: 600; margin: 0 0 4px; color: var(--text); }
+  .section-sub { font-size: 13px; color: var(--text-2); margin: 0 0 12px; }
+  .section-divider { font-size: 13px; font-weight: 700; margin: 1.25rem 0 0.5rem; padding: 6px 10px; border-radius: var(--radius); display: inline-block; }
+  .section-divider.urgent { background: var(--danger-bg); color: var(--danger-fg); }
+  .section-divider.today { background: var(--warning-bg); color: var(--warning-fg); }
+  .section-divider.future { background: var(--neutral-bg); color: var(--neutral-fg); }
+  .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; padding: 1rem; z-index: 100; }
+  .modal-bg.show { display: flex; }
+  .modal { background: var(--surface); border-radius: var(--radius-lg); padding: 1.25rem; max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+  .modal-header h3 { margin: 0; font-size: 17px; }
+  .modal-close { background: transparent; border: none; font-size: 24px; line-height: 1; cursor: pointer; color: var(--text-2); padding: 0 4px; }
+  .lead-summary { background: var(--surface-2); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 1rem; font-size: 13px; }
+  .lead-summary p { margin: 4px 0; }
+  .lead-summary strong { color: var(--text); }
+  .timeline { border-left: 2px solid var(--border); padding-left: 14px; margin: 8px 0 0; }
+  .timeline-item { padding: 8px 0; }
+  .timeline-item:not(:last-child) { border-bottom: 1px dashed var(--border); }
+  .timeline-time { font-size: 11px; color: var(--text-3); margin-bottom: 2px; }
+  .timeline-text { font-size: 13px; color: var(--text); }
+  .login-screen { max-width: 380px; margin: 4rem auto; padding: 1rem; }
+  .login-screen h1 { font-size: 20px; text-align: center; margin: 0 0 0.25rem; }
+  .login-screen .subtitle { text-align: center; font-size: 13px; color: var(--text-2); margin: 0 0 1.5rem; }
+  .loading { text-align: center; padding: 2rem; color: var(--text-2); }
+  @media (max-width: 480px) {
+    .container { padding: 0.75rem; }
+    .opt-btn { min-width: 0; flex: 1 1 calc(50% - 3px); }
+    .big-action-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="login-view" class="login-screen" style="display:none;">
+  <h1>Comercial · Clínica</h1>
+  <p class="subtitle">Faça login para começar</p>
+  <div class="card">
+    <div class="field">
+      <label class="field-label" for="login-email">E-mail</label>
+      <input type="email" id="login-email" placeholder="seu@email.com" autocomplete="username" />
+    </div>
+    <div class="field">
+      <label class="field-label" for="login-password">Senha</label>
+      <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+    <button class="btn-primary" id="btn-login" onclick="fazerLogin()">Entrar</button>
+    <div class="msg error" id="login-erro"></div>
+  </div>
+</div>
+
+<div id="loading-view" class="loading" style="display:none;">Carregando...</div>
+
+<div id="app-view" class="container" style="display:none;">
+
+  <header>
+    <div><h1>Comercial · Clínica</h1></div>
+    <div class="user-info">
+      <span id="user-nome">—</span><br>
+      <a onclick="fazerLogout()">Sair</a>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" id="tab-fila" onclick="showTab('fila')">Fila do dia<span class="tab-counter" id="cnt-fila" style="display:none;">0</span></button>
+    <button class="tab-btn" id="tab-followups" onclick="showTab('followups')">Follow-ups<span class="tab-counter" id="cnt-followups" style="display:none;">0</span></button>
+    <button class="tab-btn" id="tab-dashboard" onclick="showTab('dashboard')">Dashboard</button>
+  </div>
+
+  <div id="view-fila">
+    <div class="info-box">
+      <strong style="color: var(--text);">Como funciona:</strong> aqui aparecem todos os pacientes que a recepção marcou consulta para hoje (ou que ficaram pendentes de fechamento). Clique no nome após o atendimento para registrar Ganhou, Empatou ou Perdeu.
+    </div>
+    <div id="lista-fila"></div>
+  </div>
+
+  <div id="view-followups" style="display:none;">
+    <div class="info-box">
+      <strong style="color: var(--text);">Resgate de empates:</strong> contatos que pediram para pensar e precisam ser retomados conforme protocolo D+2, D+5, D+10. Vencidos em vermelho. Hoje em amarelo. Futuros em cinza.
+    </div>
+    <div id="lista-followups"></div>
+  </div>
+
+  <div id="view-dashboard" style="display:none;">
+    <div class="periodo-tabs">
+      <button class="tab-btn active" id="periodo-hoje" onclick="setPeriodo('hoje')">Hoje</button>
+      <button class="tab-btn" id="periodo-semana" onclick="setPeriodo('semana')">7 dias</button>
+      <button class="tab-btn" id="periodo-mes" onclick="setPeriodo('mes')">30 dias</button>
+      <button class="tab-btn" id="periodo-tudo" onclick="setPeriodo('tudo')">Acumulado</button>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><p class="stat-label">Total atendido</p><p class="stat-value" id="m-total">0</p></div>
+      <div class="stat-card success"><p class="stat-label">Ganhou no ato</p><p class="stat-value" id="m-ganhou">0</p></div>
+      <div class="stat-card warning"><p class="stat-label">Empatou</p><p class="stat-value" id="m-empatou">0</p></div>
+      <div class="stat-card danger"><p class="stat-label">Perdeu</p><p class="stat-value" id="m-perdeu">0</p></div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card success"><p class="stat-label">% Ganho no ato</p><p class="stat-value" id="m-pct-ganhou">0%</p></div>
+      <div class="stat-card warning"><p class="stat-label">% Empate</p><p class="stat-value" id="m-pct-empatou">0%</p></div>
+      <div class="stat-card"><p class="stat-label">% Recuperação de empates</p><p class="stat-value" id="m-pct-recup">—</p></div>
+    </div>
+    <div style="margin-bottom: 1.25rem;">
+      <p class="section-title">Top motivos de empate</p>
+      <div id="lista-motivos-empate"></div>
+    </div>
+    <div style="margin-bottom: 1.25rem;">
+      <p class="section-title">Top motivos de perda</p>
+      <div id="lista-motivos-perda"></div>
+    </div>
+    <div style="margin-bottom: 1.25rem;">
+      <p class="section-title">Top fatores decisivos (ganhou)</p>
+      <div id="lista-motivos-ganhou"></div>
+    </div>
+    <div>
+      <p class="section-title">Ações</p>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
+        <button class="btn-secondary" onclick="exportarCSV()">Exportar CSV</button>
+        <button class="btn-secondary" onclick="copiarResumo()">Copiar resumo</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-bg" id="modal-edit">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-titulo">Atualizar paciente</h3>
+      <button class="modal-close" onclick="fecharModal()">×</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  const SUPABASE_URL = 'https://fuglgdexcrdqkxrucacv.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_UTDM7RpWjECe5Io6VhQs4Q_8QVOXGTw';
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let usuarioAtual = null;
+  let perfilAtual = null;
+  let leadsCache = [];
+  let editState = { lead: null, decisao: null, motivo: null, motivoOutros: '', dataFollowup: null };
+  let periodoAtivo = 'hoje';
+
+  const labelTipo = { lead_novo: 'Lead novo', paciente_ativo: 'Paciente' };
+  const labelCanal = { meta: 'Meta', google: 'Google', indicacao: 'Indicação', outro: 'Outro' };
+  const labelTratamento = { emagrecimento: 'Emagrecimento', hormonal: 'Hormonal', soroterapia: 'Soroterapia', capilar: 'Capilar', dermatologia: 'Dermatologia', combinado: 'Combinado', outro: 'Outro' };
+  const labelStatus = {
+    agendado: 'Aguardando consulta',
+    consulta_feita: 'Consulta feita',
+    empatou: 'Empatou',
+    em_followup: 'Em follow-up',
+    ganhou: 'Ganhou',
+    perdido: 'Perdido'
+  };
+
+  const MOTIVOS_EMPATE = [
+    { v: 'falar_conjuge',     l: 'Falar com parceiro' },
+    { v: 'fazer_contas',      l: 'Planejar finanças' },
+    { v: 'comparar_clinicas', l: 'Comparar clínicas' },
+    { v: 'vai_pensar',        l: 'Vai pensar' },
+    { v: 'agenda_apertada',   l: 'Agenda apertada' },
+    { v: 'outros',            l: 'Outros' }
+  ];
+  const MOTIVOS_PERDA = [
+    { v: 'preco_alto',           l: 'Preço alto' },
+    { v: 'concorrente',          l: 'Foi p/ concorrente' },
+    { v: 'desistiu',             l: 'Desistiu' },
+    { v: 'nao_responde',         l: 'Não responde' },
+    { v: 'saude_pessoal',        l: 'Saúde / pessoal' },
+    { v: 'dr_nao_indicou',       l: 'Dr. não indicou' },
+    { v: 'outros',               l: 'Outros' }
+  ];
+  const FATORES_GANHOU = [
+    { v: 'confianca_dr',      l: 'Confiança no Dr.' },
+    { v: 'urgencia',          l: 'Resultado prometido' },
+    { v: 'pagamento',         l: 'Pagamento facilitado' },
+    { v: 'recomendacao',      l: 'Indicação de amigo' },
+    { v: 'valeu_preco',       l: 'Preço justo' },
+    { v: 'estilo_vida',       l: 'Mudar de vida' },
+    { v: 'outros',            l: 'Outros' }
+  ];
+
+  async function init() {
+    document.getElementById('loading-view').style.display = 'block';
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) await carregarPerfil(session.user);
+    else mostrarLogin();
+  }
+
+  async function carregarPerfil(user) {
+    const { data, error } = await sb.from('usuarios_clinica').select('*').eq('id', user.id).single();
+    if (error || !data) {
+      alert('Seu usuário não está cadastrado no sistema. Contate o administrador.');
+      await sb.auth.signOut(); mostrarLogin(); return;
+    }
+    if (data.perfil !== 'comercial' && data.perfil !== 'master') {
+      alert('Você não tem permissão para acessar o painel comercial.');
+      await sb.auth.signOut(); mostrarLogin(); return;
+    }
+    usuarioAtual = user; perfilAtual = data;
+    document.getElementById('user-nome').textContent = data.nome_exibicao + ' (' + data.perfil + ')';
+    mostrarApp();
+  }
+
+  function mostrarLogin() {
+    document.getElementById('loading-view').style.display = 'none';
+    document.getElementById('app-view').style.display = 'none';
+    document.getElementById('login-view').style.display = 'block';
+  }
+
+  function mostrarApp() {
+    document.getElementById('loading-view').style.display = 'none';
+    document.getElementById('login-view').style.display = 'none';
+    document.getElementById('app-view').style.display = 'block';
+    carregarLeads();
+  }
+
+  window.fazerLogin = async function() {
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const erro = document.getElementById('login-erro');
+    const btn = document.getElementById('btn-login');
+    erro.style.display = 'none';
+    if (!email || !password) { erro.textContent = 'Preencha email e senha.'; erro.style.display = 'block'; return; }
+    btn.disabled = true; btn.textContent = 'Entrando...';
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    btn.disabled = false; btn.textContent = 'Entrar';
+    if (error) { erro.textContent = 'Email ou senha incorretos.'; erro.style.display = 'block'; return; }
+    document.getElementById('login-view').style.display = 'none';
+    document.getElementById('loading-view').style.display = 'block';
+    await carregarPerfil(data.user);
+  };
+
+  window.fazerLogout = async function() {
+    if (!confirm('Sair do sistema?')) return;
+    await sb.auth.signOut(); location.reload();
+  };
+
+  async function carregarLeads() {
+    const { data, error } = await sb
+      .from('leads').select('*')
+      .in('status_atual', ['agendado','consulta_feita','empatou','em_followup','ganhou','perdido'])
+      .order('criado_em', { ascending: false });
+    if (error) { console.error(error); alert('Erro ao carregar dados.'); return; }
+    leadsCache = data || [];
+    renderFila();
+    renderFollowups();
+    renderDashboard();
+  }
+
+  window.showTab = function(tab) {
+    ['fila','followups','dashboard'].forEach(function(t){
+      document.getElementById('view-' + t).style.display = (t === tab) ? '' : 'none';
+      document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+    });
+    if (tab === 'fila') renderFila();
+    if (tab === 'followups') renderFollowups();
+    if (tab === 'dashboard') renderDashboard();
+  };
+
+  window.setPeriodo = function(p) {
+    periodoAtivo = p;
+    ['hoje','semana','mes','tudo'].forEach(function(x){
+      document.getElementById('periodo-' + x).classList.toggle('active', x === p);
+    });
+    renderDashboard();
+  };
+
+  function escapeHtml(s) {
+    return String(s || '').replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
+  }
+
+  function dataYMD(d) {
+    const x = d ? new Date(d) : new Date();
+    return x.getFullYear() + '-' + String(x.getMonth()+1).padStart(2,'0') + '-' + String(x.getDate()).padStart(2,'0');
+  }
+
+  function diasEntre(d1, d2) {
+    return Math.floor((new Date(d2) - new Date(d1)) / 86400000);
+  }
+
+  function adicionarDias(dias) {
+    const d = new Date(); d.setDate(d.getDate() + dias);
+    return dataYMD(d);
+  }
+
+  function renderFila() {
+    const lista = document.getElementById('lista-fila');
+    if (!lista) return;
+    const hojeStr = dataYMD();
+
+    const fila = leadsCache.filter(function(l){
+      if (l.status_atual !== 'agendado') return false;
+      if (!l.data_consulta_agendada) return true;
+      return l.data_consulta_agendada <= hojeStr;
+    }).sort(function(a,b){
+      const da = a.data_consulta_agendada || '9999-12-31';
+      const db = b.data_consulta_agendada || '9999-12-31';
+      return da.localeCompare(db);
+    });
+
+    const cnt = document.getElementById('cnt-fila');
+    cnt.textContent = fila.length;
+    cnt.style.display = fila.length > 0 ? 'inline-block' : 'none';
+
+    if (fila.length === 0) {
+      lista.innerHTML = '<div class="empty">Nenhum paciente na fila hoje. 🎯</div>';
+      return;
+    }
+
+    lista.innerHTML = fila.map(function(l){
+      const dataConsulta = l.data_consulta_agendada;
+      const isAtrasado = dataConsulta && dataConsulta < hojeStr;
+      const isHoje = dataConsulta === hojeStr;
+      const cls = isAtrasado ? 'urgent' : isHoje ? 'today' : 'info';
+      const dataTxt = !dataConsulta ? 'sem data' :
+                      isAtrasado ? 'consulta foi em ' + new Date(dataConsulta+'T00:00').toLocaleDateString('pt-BR') + ' (pendente)' :
+                      isHoje ? 'consulta hoje' :
+                      'consulta em ' + new Date(dataConsulta+'T00:00').toLocaleDateString('pt-BR');
+      const detalhes = [labelTipo[l.tipo], labelCanal[l.canal_origem], labelTratamento[l.tratamento]].filter(Boolean).join(' · ');
+      return '<div class="row-card ' + cls + '" onclick="abrirModal(\'' + l.id + '\')">' +
+        '<div class="row-top">' +
+          '<div class="row-info">' +
+            '<p class="row-name">' + escapeHtml(l.nome) + '</p>' +
+            '<p class="row-meta">📅 ' + dataTxt + (detalhes ? ' · ' + detalhes : '') + '</p>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function renderFollowups() {
+    const lista = document.getElementById('lista-followups');
+    if (!lista) return;
+    const hojeStr = dataYMD();
+
+    const ativos = leadsCache.filter(function(l){
+      return ['empatou','em_followup'].includes(l.status_atual) && l.data_proximo_followup;
+    });
+
+    const vencidos = ativos.filter(function(l){ return l.data_proximo_followup < hojeStr; }).sort(function(a,b){ return a.data_proximo_followup.localeCompare(b.data_proximo_followup); });
+    const hoje = ativos.filter(function(l){ return l.data_proximo_followup === hojeStr; });
+    const futuros = ativos.filter(function(l){ return l.data_proximo_followup > hojeStr; }).sort(function(a,b){ return a.data_proximo_followup.localeCompare(b.data_proximo_followup); });
+
+    const totalAtencao = vencidos.length + hoje.length;
+    const cnt = document.getElementById('cnt-followups');
+    cnt.textContent = totalAtencao;
+    cnt.style.display = totalAtencao > 0 ? 'inline-block' : 'none';
+
+    let html = '';
+
+    if (vencidos.length > 0) {
+      html += '<div class="section-divider urgent">🔴 Vencidos · ' + vencidos.length + '</div>';
+      html += vencidos.map(function(l){ return cardFollowup(l, 'urgent', hojeStr); }).join('');
+    }
+    if (hoje.length > 0) {
+      html += '<div class="section-divider today">🟡 Hoje · ' + hoje.length + '</div>';
+      html += hoje.map(function(l){ return cardFollowup(l, 'today', hojeStr); }).join('');
+    }
+    if (futuros.length > 0) {
+      html += '<div class="section-divider future">⚪ Futuros · ' + futuros.length + '</div>';
+      html += futuros.map(function(l){ return cardFollowup(l, 'future', hojeStr); }).join('');
+    }
+    if (ativos.length === 0) {
+      html = '<div class="empty">Nenhum follow-up agendado. 🎉</div>';
+    }
+
+    lista.innerHTML = html;
+  }
+
+  function cardFollowup(l, classe, hojeStr) {
+    const data = l.data_proximo_followup;
+    const dias = diasEntre(hojeStr, data);
+    const dataTxt = dias === 0 ? 'hoje' :
+                    dias === -1 ? 'ontem' :
+                    dias < 0 ? 'há ' + Math.abs(dias) + ' dias' :
+                    dias === 1 ? 'amanhã' :
+                    'em ' + dias + ' dias';
+    const motivoTxt = l.motivo_fechamento ? ' · ' + (MOTIVOS_EMPATE.find(function(m){ return m.v === l.motivo_fechamento; })?.l || l.motivo_fechamento) : '';
+    return '<div class="row-card ' + classe + '" onclick="abrirModal(\'' + l.id + '\')">' +
+      '<div class="row-top">' +
+        '<div class="row-info">' +
+          '<p class="row-name">' + escapeHtml(l.nome) + '</p>' +
+          '<p class="row-meta">📞 retomar ' + dataTxt + ' · ' + new Date(data+'T00:00').toLocaleDateString('pt-BR') + motivoTxt + '</p>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  window.abrirModal = async function(leadId) {
+    const lead = leadsCache.find(function(l){ return l.id === leadId; });
+    if (!lead) return;
+    editState = { lead: lead, decisao: null, motivo: null, motivoOutros: '', dataFollowup: null };
+
+    document.getElementById('modal-titulo').textContent = lead.nome;
+
+    const { data: eventos } = await sb
+      .from('eventos_funil').select('*').eq('lead_id', leadId)
+      .order('criado_em', { ascending: false });
+
+    const historico = (eventos || []).map(function(e){
+      const dt = new Date(e.criado_em).toLocaleString('pt-BR');
+      const txt = e.status_anterior
+        ? (labelStatus[e.status_anterior] || e.status_anterior) + ' → ' + (labelStatus[e.status_novo] || e.status_novo)
+        : 'Cadastrado como ' + (labelStatus[e.status_novo] || e.status_novo);
+      return '<div class="timeline-item"><div class="timeline-time">' + dt + '</div><div class="timeline-text">' + txt + (e.observacao ? '<br><em>' + escapeHtml(e.observacao) + '</em>' : '') + '</div></div>';
+    }).join('') || '<p class="empty">Sem histórico ainda.</p>';
+
+    const detalhes = [];
+    if (lead.tipo) detalhes.push('<p><strong>Tipo:</strong> ' + labelTipo[lead.tipo] + '</p>');
+    if (lead.canal_origem) detalhes.push('<p><strong>Canal:</strong> ' + labelCanal[lead.canal_origem] + '</p>');
+    if (lead.tratamento) detalhes.push('<p><strong>Tratamento de interesse:</strong> ' + labelTratamento[lead.tratamento] + '</p>');
+    if (lead.data_consulta_agendada) detalhes.push('<p><strong>Consulta:</strong> ' + new Date(lead.data_consulta_agendada+'T00:00').toLocaleDateString('pt-BR') + '</p>');
+    if (lead.observacao_recepcao) detalhes.push('<p><strong>Observação da recepção:</strong> <em>' + escapeHtml(lead.observacao_recepcao) + '</em></p>');
+    if (lead.observacao_comercial) detalhes.push('<p><strong>Observação anterior do comercial:</strong> <em>' + escapeHtml(lead.observacao_comercial) + '</em></p>');
+
+    const resumo = '<div class="lead-summary">' + (detalhes.join('') || '<p>Sem informações adicionais.</p>') + '</div>';
+
+    const isFollowup = ['empatou','em_followup'].includes(lead.status_atual);
+    const tituloAcoes = isFollowup ? 'Resultado deste follow-up:' : 'Resultado da consulta:';
+    const opcoesGrandes = isFollowup
+      ? '<button class="big-action-btn ganhou" onclick="selecionarDecisao(\'ganhou\', this)">🟢 Recuperou<br><small style="font-size:11px;font-weight:400;">(fechou agora)</small></button>' +
+        '<button class="big-action-btn empatou" onclick="selecionarDecisao(\'empatou_novo\', this)">🟡 Novo follow-up<br><small style="font-size:11px;font-weight:400;">(ainda em negociação)</small></button>' +
+        '<button class="big-action-btn perdeu" onclick="selecionarDecisao(\'perdido\', this)">🔴 Perdeu<br><small style="font-size:11px;font-weight:400;">(não voltou)</small></button>'
+      : '<button class="big-action-btn ganhou" onclick="selecionarDecisao(\'ganhou\', this)">🟢 GANHOU<br><small style="font-size:11px;font-weight:400;">(fechou no ato)</small></button>' +
+        '<button class="big-action-btn empatou" onclick="selecionarDecisao(\'empatou\', this)">🟡 EMPATOU<br><small style="font-size:11px;font-weight:400;">(vai pensar)</small></button>' +
+        '<button class="big-action-btn perdeu" onclick="selecionarDecisao(\'perdido\', this)">🔴 PERDEU<br><small style="font-size:11px;font-weight:400;">(recusou)</small></button>';
+
+    document.getElementById('modal-body').innerHTML =
+      resumo +
+      '<p class="section-title" style="margin-bottom:8px;">' + tituloAcoes + '</p>' +
+      '<div class="big-action-row">' + opcoesGrandes + '</div>' +
+      '<div id="modal-detalhes"></div>' +
+      '<div class="msg error" id="modal-erro"></div>' +
+      '<hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--border);">' +
+      '<p class="section-title">Histórico</p>' +
+      '<div class="timeline">' + historico + '</div>';
+
+    document.getElementById('modal-edit').classList.add('show');
+  };
+
+  window.selecionarDecisao = function(decisao, btn) {
+    editState.decisao = decisao;
+    editState.motivo = null;
+    editState.motivoOutros = '';
+    editState.dataFollowup = null;
+    document.querySelectorAll('.big-action-btn').forEach(function(b){ b.classList.remove('selected'); });
+    btn.classList.add('selected');
+
+    let lista, label, corClasse, mostraData = false, dataDefault = '';
+    if (decisao === 'ganhou') {
+      lista = FATORES_GANHOU; label = 'Fator decisivo:'; corClasse = 'success';
+    } else if (decisao === 'empatou' || decisao === 'empatou_novo') {
+      lista = MOTIVOS_EMPATE; label = 'Motivo do empate:'; corClasse = 'warning';
+      mostraData = true; dataDefault = adicionarDias(2);
+    } else {
+      lista = MOTIVOS_PERDA; label = 'Motivo da perda:'; corClasse = 'danger';
+    }
+
+    const optsHtml = lista.map(function(o){
+      return '<button class="opt-btn ' + corClasse + '" onclick="selecionarMotivo(\'' + o.v + '\', this)">' + escapeHtml(o.l) + '</button>';
+    }).join('');
+
+    let html =
+      '<div class="field"><label class="field-label">' + label + '</label>' +
+      '<div class="motivos-grid" id="modal-motivos">' + optsHtml + '</div></div>' +
+      '<div class="field" id="modal-outros-field" style="display:none;">' +
+        '<label class="field-label">Especifique:</label>' +
+        '<input type="text" id="modal-outros-text" placeholder="Descreva o motivo" />' +
+      '</div>';
+
+    if (mostraData) {
+      html += '<div class="field">' +
+        '<label class="field-label">Data do próximo follow-up (sugerido D+2):</label>' +
+        '<div class="followup-grid">' +
+          '<button class="opt-btn" onclick="usarFollowup(' + 2 + ', this)">D+2<br><small style="font-size:11px; font-weight:400;">' + new Date(adicionarDias(2)+'T00:00').toLocaleDateString('pt-BR') + '</small></button>' +
+          '<button class="opt-btn" onclick="usarFollowup(' + 5 + ', this)">D+5<br><small style="font-size:11px; font-weight:400;">' + new Date(adicionarDias(5)+'T00:00').toLocaleDateString('pt-BR') + '</small></button>' +
+          '<button class="opt-btn" onclick="usarFollowup(' + 10 + ', this)">D+10<br><small style="font-size:11px; font-weight:400;">' + new Date(adicionarDias(10)+'T00:00').toLocaleDateString('pt-BR') + '</small></button>' +
+        '</div>' +
+        '<input type="date" id="modal-data-followup" value="' + dataDefault + '" />' +
+      '</div>';
+      editState.dataFollowup = dataDefault;
+    }
+
+    html += '<div class="field"><label class="field-label">Observação (opcional):</label>' +
+      '<textarea id="modal-obs-comercial" placeholder="Detalhes da conversa, percepções, próximos passos"></textarea>' +
+      '</div>' +
+      '<button class="btn-primary" id="modal-btn-salvar" onclick="confirmarFechamento()" disabled>Confirmar</button>';
+
+    document.getElementById('modal-detalhes').innerHTML = html;
+  };
+
+  window.usarFollowup = function(dias, btn) {
+    document.querySelectorAll('#modal-detalhes .followup-grid .opt-btn').forEach(function(b){
+      b.classList.remove('selected');
+    });
+    btn.classList.add('selected');
+    const novaData = adicionarDias(dias);
+    document.getElementById('modal-data-followup').value = novaData;
+    editState.dataFollowup = novaData;
+  };
+
+  window.selecionarMotivo = function(motivo, btn) {
+    editState.motivo = motivo;
+    document.querySelectorAll('#modal-motivos .opt-btn').forEach(function(b){ b.classList.remove('selected'); });
+    btn.classList.add('selected');
+    document.getElementById('modal-outros-field').style.display = (motivo === 'outros') ? 'block' : 'none';
+    document.getElementById('modal-btn-salvar').disabled = false;
+  };
+
+  window.confirmarFechamento = async function() {
+    const erro = document.getElementById('modal-erro');
+    const btn = document.getElementById('modal-btn-salvar');
+    erro.style.display = 'none';
+
+    if (!editState.decisao || !editState.motivo) return;
+
+    let motivoOutros = '';
+    if (editState.motivo === 'outros') {
+      motivoOutros = document.getElementById('modal-outros-text').value.trim();
+      if (!motivoOutros) { erro.textContent = 'Especifique o motivo "Outros".'; erro.style.display = 'block'; return; }
+    }
+
+    let dataFollowup = null;
+    if (editState.decisao === 'empatou' || editState.decisao === 'empatou_novo') {
+      dataFollowup = document.getElementById('modal-data-followup').value;
+      if (!dataFollowup) { erro.textContent = 'Defina a data do follow-up.'; erro.style.display = 'block'; return; }
+    }
+
+    const obs = document.getElementById('modal-obs-comercial').value.trim();
+
+    btn.disabled = true; btn.textContent = 'Salvando...';
+
+    let novoStatus;
+    if (editState.decisao === 'ganhou') novoStatus = 'ganhou';
+    else if (editState.decisao === 'perdido') novoStatus = 'perdido';
+    else if (editState.decisao === 'empatou') novoStatus = 'empatou';
+    else if (editState.decisao === 'empatou_novo') novoStatus = 'em_followup';
+
+    const update = {
+      status_atual: novoStatus,
+      motivo_fechamento: editState.motivo,
+      motivo_outros_texto: motivoOutros || null,
+      observacao_comercial: obs || null,
+      atualizado_em: new Date().toISOString(),
+      criado_por: usuarioAtual.id
+    };
+    if (dataFollowup) update.data_proximo_followup = dataFollowup;
+    else update.data_proximo_followup = null;
+
+    if ((novoStatus === 'ganhou' || novoStatus === 'perdido') && !editState.lead.data_consulta_realizada) {
+      update.data_consulta_realizada = dataYMD();
+    }
+
+    const statusAnterior = editState.lead.status_atual;
+    const { error: errUpd } = await sb.from('leads').update(update).eq('id', editState.lead.id);
+    if (errUpd) {
+      erro.textContent = 'Erro: ' + errUpd.message; erro.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Confirmar';
+      return;
+    }
+
+    // Buscar o evento criado pelo trigger com filtro PRECISO (lead + status anterior + status novo exatos)
+    // para garantir que estamos atualizando o evento certo, não o último por timing.
+    const { data: evt, error: errBusca } = await sb
+      .from('eventos_funil')
+      .select('id')
+      .eq('lead_id', editState.lead.id)
+      .eq('status_anterior', statusAnterior)
+      .eq('status_novo', novoStatus)
+      .order('criado_em', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (evt && !errBusca) {
+      await sb.from('eventos_funil').update({
+        observacao: obs || null,
+        motivo_fechamento: editState.motivo,
+        motivo_outros_texto: motivoOutros || null
+      }).eq('id', evt.id);
+    } else {
+      // Fallback: se o trigger não criou evento (ou busca falhou), insere manualmente
+      await sb.from('eventos_funil').insert({
+        lead_id: editState.lead.id,
+        status_anterior: statusAnterior,
+        status_novo: novoStatus,
+        observacao: obs || null,
+        motivo_fechamento: editState.motivo,
+        motivo_outros_texto: motivoOutros || null,
+        criado_por: usuarioAtual.id
+      });
+    }
+
+    fecharModal();
+    await carregarLeads();
+  };
+
+  window.fecharModal = function() {
+    document.getElementById('modal-edit').classList.remove('show');
+    editState = { lead: null, decisao: null, motivo: null, motivoOutros: '', dataFollowup: null };
+  };
+
+  function inicioDoDia(d) { const x = new Date(d); x.setHours(0,0,0,0); return x; }
+
+  function filtrarPeriodo(p) {
+    if (p === 'tudo') return leadsCache.slice();
+    const agora = new Date();
+    let limite;
+    if (p === 'hoje') limite = inicioDoDia(agora);
+    else if (p === 'semana') { limite = new Date(agora); limite.setDate(limite.getDate() - 7); }
+    else { limite = new Date(agora); limite.setDate(limite.getDate() - 30); }
+    return leadsCache.filter(function(l){
+      const ref = l.atualizado_em || l.criado_em;
+      return new Date(ref) >= limite;
+    });
+  }
+
+  function topMotivos(dados, lista) {
+    const contagem = {};
+    dados.forEach(function(l){
+      if (l.motivo_fechamento) {
+        const key = l.motivo_fechamento === 'outros' && l.motivo_outros_texto
+          ? 'Outros: ' + l.motivo_outros_texto
+          : (lista.find(function(m){ return m.v === l.motivo_fechamento; })?.l || l.motivo_fechamento);
+        contagem[key] = (contagem[key] || 0) + 1;
+      }
+    });
+    return Object.entries(contagem).sort(function(a,b){ return b[1] - a[1]; }).slice(0, 3);
+  }
+
+  function renderTopMotivos(elementId, top, total) {
+    const el = document.getElementById(elementId);
+    if (top.length === 0) {
+      el.innerHTML = '<p style="font-size:13px; color: var(--text-3); margin:0;">Sem dados ainda.</p>';
+      return;
+    }
+    el.innerHTML = top.map(function(t){
+      const pct = total > 0 ? Math.round((t[1]/total)*100) : 0;
+      return '<div style="display:flex; justify-content:space-between; padding:6px 10px; background:var(--surface-2); border-radius:var(--radius); margin-bottom:4px; font-size:13px;">' +
+        '<span>' + escapeHtml(t[0]) + '</span>' +
+        '<span style="color:var(--text-2);">' + t[1] + ' · ' + pct + '%</span>' +
+        '</div>';
+    }).join('');
+  }
+
+  function renderDashboard() {
+    const dados = filtrarPeriodo(periodoAtivo);
+    const ganhou = dados.filter(function(l){ return l.status_atual === 'ganhou'; });
+    const empatou = dados.filter(function(l){ return ['empatou','em_followup'].includes(l.status_atual); });
+    const perdido = dados.filter(function(l){ return l.status_atual === 'perdido'; });
+    const fechados = ganhou.length + empatou.length + perdido.length;
+
+    if (!document.getElementById('m-total')) return;
+    document.getElementById('m-total').textContent = fechados;
+    document.getElementById('m-ganhou').textContent = ganhou.length;
+    document.getElementById('m-empatou').textContent = empatou.length;
+    document.getElementById('m-perdeu').textContent = perdido.length;
+
+    document.getElementById('m-pct-ganhou').textContent = fechados > 0 ? Math.round((ganhou.length/fechados)*100) + '%' : '0%';
+    document.getElementById('m-pct-empatou').textContent = fechados > 0 ? Math.round((empatou.length/fechados)*100) + '%' : '0%';
+
+    const recuperados = leadsCache.filter(function(l){
+      return l.status_atual === 'ganhou' && MOTIVOS_EMPATE.some(function(m){ return m.v === l.motivo_fechamento; });
+    }).length;
+    const totalEmpatesHistoricos = leadsCache.filter(function(l){
+      return ['empatou','em_followup','perdido'].includes(l.status_atual) && MOTIVOS_EMPATE.some(function(m){ return m.v === l.motivo_fechamento; });
+    }).length + recuperados;
+    document.getElementById('m-pct-recup').textContent = totalEmpatesHistoricos > 0
+      ? Math.round((recuperados/totalEmpatesHistoricos)*100) + '%'
+      : '—';
+
+    renderTopMotivos('lista-motivos-empate', topMotivos(empatou, MOTIVOS_EMPATE), empatou.length);
+    renderTopMotivos('lista-motivos-perda', topMotivos(perdido, MOTIVOS_PERDA), perdido.length);
+    renderTopMotivos('lista-motivos-ganhou', topMotivos(ganhou, FATORES_GANHOU), ganhou.length);
+  }
+
+  window.exportarCSV = function() {
+    if (leadsCache.length === 0) { alert('Nada para exportar ainda.'); return; }
+    const header = ['nome','tipo','canal','tratamento','status','motivo_ou_fator','obs_recepcao','obs_comercial','data_consulta_agendada','data_consulta_realizada','data_proximo_followup','criado_em','atualizado_em'];
+    const linhas = leadsCache.map(function(l){
+      const motivoLabel = l.motivo_fechamento === 'outros' && l.motivo_outros_texto
+        ? 'Outros: ' + l.motivo_outros_texto
+        : ([...MOTIVOS_EMPATE, ...MOTIVOS_PERDA, ...FATORES_GANHOU].find(function(m){ return m.v === l.motivo_fechamento; })?.l || '');
+      return [
+        l.nome,
+        labelTipo[l.tipo] || l.tipo,
+        labelCanal[l.canal_origem] || '',
+        labelTratamento[l.tratamento] || '',
+        labelStatus[l.status_atual] || l.status_atual,
+        motivoLabel,
+        l.observacao_recepcao || '',
+        l.observacao_comercial || '',
+        l.data_consulta_agendada || '',
+        l.data_consulta_realizada || '',
+        l.data_proximo_followup || '',
+        new Date(l.criado_em).toLocaleString('pt-BR'),
+        new Date(l.atualizado_em).toLocaleString('pt-BR')
+      ].map(function(v){ return '"' + String(v||'').replace(/"/g,'""') + '"'; }).join(',');
+    });
+    const csv = '\uFEFF' + [header.join(','), ...linhas].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'comercial-' + dataYMD() + '.csv';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  window.copiarResumo = function() {
+    const dados = filtrarPeriodo(periodoAtivo);
+    const ganhou = dados.filter(function(l){ return l.status_atual === 'ganhou'; }).length;
+    const empatou = dados.filter(function(l){ return ['empatou','em_followup'].includes(l.status_atual); }).length;
+    const perdido = dados.filter(function(l){ return l.status_atual === 'perdido'; }).length;
+    const fechados = ganhou + empatou + perdido;
+    const pctG = fechados > 0 ? Math.round((ganhou/fechados)*100) : 0;
+    const pctE = fechados > 0 ? Math.round((empatou/fechados)*100) : 0;
+    const pctP = fechados > 0 ? Math.round((perdido/fechados)*100) : 0;
+
+    const periodo = periodoAtivo === 'hoje' ? 'hoje' : periodoAtivo === 'semana' ? '7 dias' : periodoAtivo === 'mes' ? '30 dias' : 'acumulado';
+    const data = new Date().toLocaleDateString('pt-BR');
+
+    const texto =
+      '*Comercial · ' + data + '*\n' +
+      'Período: ' + periodo + '\n\n' +
+      '• Atendimentos fechados: ' + fechados + '\n' +
+      '• 🟢 Ganhou: ' + ganhou + ' (' + pctG + '%)\n' +
+      '• 🟡 Empatou: ' + empatou + ' (' + pctE + '%)\n' +
+      '• 🔴 Perdeu: ' + perdido + ' (' + pctP + '%)';
+
+    navigator.clipboard.writeText(texto).then(function(){
+      alert('Resumo copiado.');
+    }).catch(function(){
+      prompt('Copie o texto:', texto);
+    });
+  };
+
+  document.getElementById('login-password').addEventListener('keydown', function(e){
+    if (e.key === 'Enter') fazerLogin();
+  });
+  document.getElementById('modal-edit').addEventListener('click', function(e){
+    if (e.target.id === 'modal-edit') fecharModal();
+  });
+
+  init();
+})();
+</script>
+</body>
+</html>
